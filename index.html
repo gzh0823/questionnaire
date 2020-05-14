@@ -157,10 +157,14 @@
     .el-checkbox {
         margin-bottom: 10px;
     }
-
+    .el-radio__label,.el-checkbox__label{
+        font-size: 18px;
+    }
     .el-checkbox__input.is-checked .el-checkbox__inner,
     .el-checkbox__input.is-indeterminate .el-checkbox__inner {
-        background: white
+        background: white;
+        width:16px;
+        height:16px;
     }
 
     .el-checkbox__inner::after {
@@ -190,12 +194,12 @@
 <body>
     <div id="app" :style="style" v-loading="loading">
         <div class="question">
+                        <input type="file" name="fileField" class="file" id="fileField" size="28" οnchange="document.getElementById('textfield').value=this.value" />
+
             <!-- <el-carousel :autoplay='false' indicator-position='none' ref="carousel"
                 :loop='false' arrow="never" >
                 <el-carousel-item> -->
             <div class="page" v-for="(item,index) in showList" :key="index">
-
-                <!-- <p>{{item.caption}}</p> -->
                 <div v-for="i in item">
                     <p :style="i.type==4?'font-size:16px':'font-size:14px'">{{i.caption}}<span v-show="i.isMust==1"
                             style="color:red;margin-left:5px">*</span></p>
@@ -236,7 +240,7 @@
                     <el-upload v-if="i.type==7"
                         action="https://assistant.chinaindustria.com/activity/api/v1/upload/image" :limit=limitNum
                         :multiple=false :auto-upload="true" :on-exceed="exceedFile" :before-upload="beforeUploadFile"
-                        accept=".doc,.docx,.xls,.xlsx,.ppt,.pdf" :on-change="fileChange" :on-success="handleSuccess"
+                        :on-change="fileChange" :on-success="handleSuccess"
                         :on-error="handleError" :file-list="fileList" list-type="text">
                         <i class="el-icon-plus"></i>
                         <div slot="tip" class="el-upload__tip">支持Word、Excel、PPT、PDF等格式。</div>
@@ -287,7 +291,7 @@
                         <el-upload v-if="i.type==7" ref="upload" :on-remove="handleRemove"
                             action="https://assistant.chinaindustria.com/activity/api/v1/upload/image" :limit=limitNum
                             :multiple=false :auto-upload="true" :on-exceed="exceedFile"
-                            :before-upload="beforeUploadFile" accept=".doc,.docx,.xls,.xlsx,.ppt,.pdf"
+                            :before-upload="beforeUploadFile"
                             :on-change="fileChange" :on-success="handleSuccess" :on-error="handleError"
                             :file-list="fileList" list-type="text">
                             <i class="el-icon-plus"></i>
@@ -299,7 +303,7 @@
             </div>
             <!-- </el-carousel-item>
             </el-carousel> -->
-            <button class="more" @click="showMore">{{moreContent}}</button>
+            <button class="more" @click="showMore">{{moreContent}}<img style="width:14px;height:14px;margin-left:5px" :src="more?'./upArrow.png':'./downArrow.png'"/></button>
             <button class="submit" @click="submitBtn">提交</button>
         </div>
 
