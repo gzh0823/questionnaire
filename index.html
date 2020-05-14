@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <title>融资需求收集表</title>
+</head>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    p {
+        font-size: 16px;
+        color: #363636;
+        font-weight: bold;
+    }
+
+    #app {
+        text-align: center;
+        background: #088CFF;
+        padding-top: 24px;
+        padding-bottom: 50px;
+        box-sizing: border-box;
+    }
+
+    .user {
+        display: flex;
+        align-items: center;
+    }
+
+    .user img {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
+
+    .user div {
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 1);
+        line-height: 14px;
+        flex: 1;
+        margin-left: 10px;
+    }
+
+    .tip {
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 14px;
+        text-align: center;
+        margin: 120px auto 20px
+    }
+
+    .tip::before {
+        width: 50px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.7);
+        content: " ";
+        display: inline-block;
+        position: relative;
+        top: -3px;
+        right: 10px
+    }
+
+    .tip::after {
+        width: 50px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.7);
+        content: " ";
+        display: inline-block;
+        position: relative;
+        top: -3px;
+        left: 10px
+    }
+
+    .question {
+        width: 100%;
+        margin-top: -20px;
+        height: 100%;
+        box-shadow: 0px 0px 20px 0px rgba(48, 78, 246, 0.2);
+        border-radius: 20px;
+        text-align: left;
+        padding: 0 15px;
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    .page {
+        background: white;
+        padding: 16px 20px;
+        box-sizing: border-box;
+        margin: 20px auto;
+        border-radius: 4px;
+    }
+
+    .el-carousel__item {
+        width: 85%;
+        background: white;
+        border: 1px solid black;
+        height: 100%;
+        box-shadow: 0px 0px 20px 0px rgba(48, 78, 246, 0.2);
+        border-radius: 20px;
+        margin-left: -20px;
+        margin-right: -40px;
+        text-align: left;
+        padding: 60px 30px;
+        box-sizing: border-box;
+    }
+
+    .el-carousel__item.is-active {
+        margin-right: -40px;
+        margin-left: 20px
+    }
+
+    .el-carousel--horizontal {
+        overflow-y: auto;
+    }
+
+    .more {
+        color: white;
+        width: 200px;
+        height: 50px;
+        text-align: center;
+        line-height: 50px;
+        background: #088CFF;
+        border-radius: 25px;
+        margin: 20px auto;
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        border: 1px solid white;
+    }
+
+    .submit {
+        color: #088CFF;
+        width: 200px;
+        height: 50px;
+        text-align: center;
+        line-height: 50px;
+        background: #FFFFFF;
+        box-shadow: 0 3px 6px 0 rgba(255, 255, 255, 0.54);
+        border-radius: 25px;
+        margin: 0 auto;
+        display: block;
+        font-size: 16px;
+        font-weight: bold;
+        border: 0;
+    }
+
+    .el-radio,
+    .el-checkbox {
+        margin-bottom: 10px;
+    }
+
+    .el-checkbox__input.is-checked .el-checkbox__inner,
+    .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+        background: white
+    }
+
+    .el-checkbox__inner::after {
+        border: 2px solid #088CFF;
+        border-left: 0;
+        border-top: 0;
+    }
+
+    .el-upload {
+        outline: 1px dotted #DCDFE6;
+    }
+
+    .el-icon-plus {
+        font-size: 28px;
+        color: #8c939d;
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+    }
+
+    .el-select {
+        width: 100%;
+    }
+</style>
+
+<body>
+    <div id="app" :style="style" v-loading="loading">
+        <div class="question">
+            <!-- <el-carousel :autoplay='false' indicator-position='none' ref="carousel"
+                :loop='false' arrow="never" >
+                <el-carousel-item> -->
+            <div class="page" v-for="(item,index) in showList" :key="index">
+
+                <!-- <p>{{item.caption}}</p> -->
+                <div v-for="i in item">
+                    <p :style="i.type==4?'font-size:16px':'font-size:14px'">{{i.caption}}<span v-show="i.isMust==1"
+                            style="color:red;margin-left:5px">*</span></p>
+                    <!-- 单选型 -->
+                    <el-radio-group v-if="i.type==0" v-model="showAnswerList.find(o=>o.id==i.id).content">
+                        <el-radio v-for="k in i.optionItems" :key="k.id" :label="k.context">{{k.context}}
+                        </el-radio>
+                    </el-radio-group>
+
+                    <!-- 多选型 -->
+                    <el-checkbox-group v-if="i.type==1" v-model="showAnswerList.find(o=>o.id==i.id).content">
+                        <el-checkbox v-for="k in i.optionItems" :key="k.id" :label="k.context">
+                            {{k.context}}
+                        </el-checkbox>
+                    </el-checkbox-group>
+
+                    <!-- 输入型 -->
+                    <el-input v-if="i.type==2" type="text" v-model="showAnswerList.find(o=>o.id==i.id).content"
+                        :maxlength="i.length==0?999:500" :show-word-limit="i.length==0?false:true" :placeholder="i.tips"
+                        clearable>
+                        <template v-if="i.unit!=undefined" slot="append">{{i.unit}}</template>
+                    </el-input>
+
+                    <!-- 输入多行型 -->
+                    <el-input v-if="i.type==3" rows=10 type="textarea"
+                        v-model="showAnswerList.find(o=>o.id==i.id).content" :placeholder="i.tips"
+                        :maxlength="i.length==0?999:500" :show-word-limit="i.length==0?false:true">
+                    </el-input>
+
+                    <!-- 下拉型 -->
+                    <el-select v-if="i.type==8" filterable v-model="showAnswerList.find(o=>o.id==i.id).content"
+                        :placeholder="i.tips">
+                        <el-option v-for="k in i.optionItems" :key="k.id" :label="k.context" :value="k.context">
+                        </el-option>
+                    </el-select>
+
+                    <!-- 上传 -->
+                    <el-upload v-if="i.type==7"
+                        action="https://assistant.chinaindustria.com/activity/api/v1/upload/image" :limit=limitNum
+                        :multiple=false :auto-upload="true" :on-exceed="exceedFile" :before-upload="beforeUploadFile"
+                        accept=".doc,.docx,.xls,.xlsx,.ppt,.pdf" :on-change="fileChange" :on-success="handleSuccess"
+                        :on-error="handleError" :file-list="fileList" list-type="text">
+                        <i class="el-icon-plus"></i>
+                        <div slot="tip" class="el-upload__tip">支持Word、Excel、PPT、PDF等格式。</div>
+                    </el-upload>
+                </div>
+
+            </div>
+            <div v-show="more">
+                <p style="color:white;font-size: 14px;">以下为选填内容</p>
+                <div class="page" v-for="(item,index) in hideList" :key="index">
+
+                    <div v-for="i in item">
+                        <p>{{i.caption}}</p>
+                        <!-- 单选型 -->
+                        <el-radio-group v-if="i.type==0" v-model="hideAnswerList.find(o=>o.id==i.id).content">
+                            <el-radio v-for="(k,idx) in i.optionItems" :key="idx" :label="k.context">{{k.context}}
+                            </el-radio>
+                        </el-radio-group>
+
+                        <!-- 多选型 -->
+                        <el-checkbox-group v-if="i.type==1" v-model="hideAnswerList.find(o=>o.id==i.id).content">
+                            <el-checkbox v-for="(k,idx2) in i.optionItems" :key="idx2" :label="k.context">
+                                {{k.context}}
+                            </el-checkbox>
+                        </el-checkbox-group>
+
+                        <!-- 输入型 -->
+                        <el-input v-if="i.type==2" type="text" v-model="hideAnswerList.find(o=>o.id==i.id).content"
+                            :maxlength="i.length==0?999:500" :show-word-limit="i.length==0?false:true"
+                            :placeholder="i.tips" clearable>
+                            <template v-if="i.unit!=undefined" slot="append">{{i.unit}}</template>
+                        </el-input>
+
+                        <!-- 输入多行型 -->
+                        <el-input v-if="i.type==3" rows=10 type="textarea"
+                            v-model="hideAnswerList.find(o=>o.id==i.id).content" :placeholder="i.tips"
+                            :maxlength="i.length==0?999:500" :show-word-limit="i.length==0?false:true">
+                        </el-input>
+
+                        <!-- 下拉型 -->
+                        <el-select v-if="i.type==8" filterable v-model="hideAnswerList.find(o=>o.id==i.id).content"
+                            :placeholder="i.tips">
+                            <el-option v-for="k in i.optionItems" :key="k.id" :label="k.context" :value="k.context">
+                            </el-option>
+                        </el-select>
+
+                        <!-- 上传 -->
+                        <el-upload v-if="i.type==7" ref="upload" :on-remove="handleRemove"
+                            action="https://assistant.chinaindustria.com/activity/api/v1/upload/image" :limit=limitNum
+                            :multiple=false :auto-upload="true" :on-exceed="exceedFile"
+                            :before-upload="beforeUploadFile" accept=".doc,.docx,.xls,.xlsx,.ppt,.pdf"
+                            :on-change="fileChange" :on-success="handleSuccess" :on-error="handleError"
+                            :file-list="fileList" list-type="text">
+                            <i class="el-icon-plus"></i>
+                            <div slot="tip" class="el-upload__tip">支持Word、Excel、PPT、PDF等格式。</div>
+                        </el-upload>
+                    </div>
+
+                </div>
+            </div>
+            <!-- </el-carousel-item>
+            </el-carousel> -->
+            <button class="more" @click="showMore">{{moreContent}}</button>
+            <button class="submit" @click="submitBtn">提交</button>
+        </div>
+
+
+    </div>
+</body>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                limitNum: 4,
+                id: 1,
+                showList: [],
+                hideList: [],
+                moreContent: '展开全部问题',
+                more: false,
+                showAnswerList: [],
+                hideAnswerList: [],
+                file: '',
+                fileList: [],
+                loading: false
+            }
+        },
+        methods: {
+            showMore() {
+                if (this.moreContent == '展开全部问题') {
+                    this.moreContent = '收起选填内容'
+                    this.more = true
+                } else {
+                    this.moreContent = '展开全部问题'
+                    this.more = false
+                }
+            },
+            exceedFile(files, fileList) {
+                this.$notify.warning({
+                    title: '警告',
+                    message: `只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`
+                });
+            },
+            // 文件状态改变时的钩子
+            fileChange(file, fileList) {
+                this.file = file.raw
+            },
+            // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+            beforeUploadFile(file) {
+                let extension = file.name.substring(file.name.lastIndexOf('.') + 1)
+                console.log(extension)
+                // let size = file.size / 1024 / 1024
+                if (extension != 'doc' && extension != 'docx' && extension != 'xlsx' && extension != 'xls' && extension != 'ppt' && extension != 'pdf') {
+                    this.$notify.warning({
+                        title: '警告',
+                        message: `只能上传Word、Excel、PPT、PDF的文件`
+                    });
+                    return false
+                } else {
+                    return true
+                }
+
+            },
+            // 文件上传成功时的钩子
+            handleSuccess(res, file, fileList) {
+                console.log(res, file)
+                this.$notify.success({
+                    title: '成功',
+                    message: `文件上传成功`
+                });
+                this.fileList.push({ name: file.name, url: res.result })
+                console.log('文件列表', this.fileList)
+            },
+            // 删除文件
+            handleRemove(file) {
+                let index = this.fileList.findIndex(fileItem => {
+                    return fileItem.name === file.name
+                })
+                this.fileList.splice(index, 1)
+            },
+            // 文件上传失败时的钩子
+            handleError(err, file, fileList) {
+                this.$notify.error({
+                    title: '错误',
+                    message: `文件上传失败`
+                });
+            },
+            submitBtn() {
+                let test = this.showAnswerList.every((i) => {
+                    if (i.isMust == 1) {
+                        return i.content != "";
+                    } else {
+                        return true
+                    }
+                });
+                console.log(test)
+                if (test) {
+                    let Params1 = this.showAnswerList.map(item => {
+                        const { type, content, id } = item
+                        let obj = { id: id, content: [], type: type }
+                        if (content == '' && type != 7 || content == [] && type != 7) {
+                            return obj
+                        } else {
+                            if (type === 2 || type == 3) {//填空
+                                obj.content = [{ content: content }]
+                                return obj
+                            } else if (type === 0 || type == 8) {//单选、下拉
+                                for (let i = 0; i < this.showList.length; i++) {
+                                    for (let j = 0; j < this.showList[i].length; j++) {
+                                        if (this.showList[i][j].id === id) {
+                                            const { optionItems } = this.showList[i][j]
+                                            const { id } = optionItems.filter(o => o.context === content)[0]
+                                            obj.content.push({
+                                                content: content,
+                                                var: id
+                                            })
+                                            return obj
+                                        }
+                                    }
+                                }
+                            }
+                            else if (type === 1) {//多选
+                                for (let i = 0; i < this.showList.length; i++) {
+                                    for (let j = 0; j < this.showList[i].length; j++) {
+                                        if (this.showList[i][j].id === id) {
+                                            const { optionItems } = this.showList[i][j]
+                                            content.forEach(q => {
+                                                const { id } = optionItems.filter(o => o.context === q)[0]
+                                                obj.content.push({
+                                                    content: q,
+                                                    var: id
+                                                })
+                                            })
+                                            return obj
+                                        }
+                                    }
+                                }
+                            } else if (type == 7) {//文件
+                                let urls = this.fileList.map(i => {
+                                    return i.url
+                                })
+                                urls.forEach(q => {
+                                    obj.content.push({
+                                        uploadFile: q
+                                    })
+                                })
+                                return obj
+                            }
+                        }
+                    })
+                    let Params2 = this.hideAnswerList.map(item => {
+                        const { type, content, id } = item
+                        let obj = { id: id, content: [], type: type }
+                        if (content == '' && type != 7 || content == [] && type != 7) {
+                            return obj
+                        } else {
+                            if (type === 2 || type == 3) {//填空
+                                obj.content = [{ content: content }]
+                                return obj
+                            } else if (type === 0 || type == 8) {//单选、下拉
+                                for (let i = 0; i < this.hideList.length; i++) {
+                                    for (let j = 0; j < this.hideList[i].length; j++) {
+                                        if (this.hideList[i][j].id === id) {
+                                            const { optionItems } = this.hideList[i][j]
+                                            const { id } = optionItems.filter(o => o.context === content)[0]
+                                            obj.content.push({
+                                                content: content,
+                                                var: id
+                                            })
+                                            return obj
+                                        }
+                                    }
+                                }
+                            }
+                            else if (type === 1) {//多选
+                                for (let i = 0; i < this.hideList.length; i++) {
+                                    for (let j = 0; j < this.hideList[i].length; j++) {
+                                        if (this.hideList[i][j].id === id) {
+                                            const { optionItems } = this.hideList[i][j]
+                                            content.forEach(q => {
+                                                const { id } = optionItems.filter(o => o.context === q)[0]
+                                                obj.content.push({
+                                                    content: q,
+                                                    var: id
+                                                })
+                                            })
+                                            return obj
+                                        }
+                                    }
+                                }
+                            } else if (type == 7) {
+                                let urls = this.fileList.map(i => {
+                                    return i.url
+                                })
+                                urls.forEach(q => {
+                                    obj.content.push({
+                                        uploadFile: q
+                                    })
+                                })
+                                return obj
+                            }
+                        }
+
+
+                    })
+                    let Params = [...Params1, ...Params2]
+                    console.log(Params)
+                    axios.get(`https://assistant.chinaindustria.com/activity/api/v1/questionnaireQuestion/submitQuestionnaire0?answerStr=${encodeURIComponent(JSON.stringify(Params))}`).then(res => {
+                        if (res.data.code == 200) {
+                            alert(res.data.msg)
+                        } else {
+                            this.$message({
+                                type: 'error',
+                                message: res.data.msg
+                            });
+                        }
+                    }).catch(err => {
+                        this.$message({
+                                type: 'error',
+                                message: res.data.msg
+                            });
+                    })
+                } else {
+                    this.$message({
+                        type: 'error',
+                        message: `请将必填内容补充完整`
+                    });
+                    window.scrollTo(0,0)
+                    // alert('请将必填内容填写完整')
+                }
+            },
+            getQuestion(id) {
+                axios.post(`https://assistant.chinaindustria.com/activity/api/v1/questionnaireQuestion/questionnaireDetail?questionnaireId=${id}`).then(res => {
+                    if (res.data.code == 200) {
+                        this.showList = res.data.result.show[0]
+                        this.hideList = res.data.result.hidden[0] ? res.data.result.hidden[0] : []
+                        for (let i = 0; i < res.data.result.show[0].length; i++) {
+                            for (let j = 0; j < res.data.result.show[0][i].length; j++) {
+                                if (res.data.result.show[0][i][j].type != 4) {
+                                    this.showAnswerList.push({ id: res.data.result.show[0][i][j].id, isMust: res.data.result.show[0][i][j].isMust, type: res.data.result.show[0][i][j].type, content: res.data.result.show[0][i][j].type == 1 ? [] : '' })
+                                }
+                            }
+                        }
+                        for (let i = 0; i < res.data.result.hidden[0].length; i++) {
+                            for (let j = 0; j < res.data.result.hidden[0][i].length; j++) {
+                                if (res.data.result.hidden[0][i][j].type != 4) {
+                                    this.hideAnswerList.push({ id: res.data.result.hidden[0][i][j].id, type: res.data.result.hidden[0][i][j].type, content: res.data.result.hidden[0][i][j].type == 1 ? [] : '' })
+                                }
+                            }
+                        }
+                        this.loading = false
+                        console.log(this.showAnswerList, this.hideAnswerList)
+                        // for (let i = 0; i < tempLength; i++) {
+                        //     this.answerList.push({ questionId: i.id, type: i.type, content: i.type == 2 ? [] : '' })
+                        // }
+                        // console.log(this.answerList)
+
+
+                    }
+                }).catch(err => {
+                    this.loading = false
+
+                })
+            },
+        },
+        mounted() {
+        },
+        created() {
+            this.style = `width:${window.screen.width}px;height:100%`
+            this.loading = true
+            //     function GetRequest() {
+            //         let url = location.search; //获取url中"?"符后的字串  
+            //         let theRequest = new Object();
+            //         if (url.indexOf("?") != -1) {
+            //             let str = url.substr(1);
+            //             strs = str.split("&");
+            //             for (let i = 0; i < strs.length; i++) {
+            //                 theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+            //             }
+            //         }
+            //         return theRequest;
+            //     }
+            //    let request = GetRequest();
+            //     this.id = request['id']
+            //     this.name = decodeURI(escape(request['name']))
+            //     this.ava = request['ava']
+            this.getQuestion(60)
+
+        }
+    })
+
+</script>
+
+</html>
